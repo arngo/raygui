@@ -1705,6 +1705,7 @@ int GuiPanel(Rectangle bounds, const char *text)
 int GuiTabBar(Rectangle bounds, const char **text, int count, int *active)
 {
     #define RAYGUI_TABBAR_ITEM_WIDTH    160
+	#define RAYGUI_TABBAR_ITEM_SPACING   4
 
     int result = -1;
     //GuiState state = guiState;
@@ -1714,8 +1715,14 @@ int GuiTabBar(Rectangle bounds, const char **text, int count, int *active)
     if (*active < 0) *active = 0;
     else if (*active > count - 1) *active = count - 1;
 
+	if (((tabBounds.width + RAYGUI_TABBAR_ITEM_SPACING) * count) - RAYGUI_TABBAR_ITEM_SPACING > bounds.width)
+	{
+		tabBounds.width = floorf((bounds.width - (RAYGUI_TABBAR_ITEM_SPACING * (count - 1))) / count);
+        if (tabBounds.width < 50) tabBounds.width = 50;
+	}
+
     int offsetX = 0;    // Required in case tabs go out of screen
-    offsetX = (*active + 2)*RAYGUI_TABBAR_ITEM_WIDTH - GetScreenWidth();
+    offsetX = (*active + 2)*tabBounds.width - GetScreenWidth();
     if (offsetX < 0) offsetX = 0;
 
     bool toggle = false;    // Required for individual toggles
@@ -1724,7 +1731,8 @@ int GuiTabBar(Rectangle bounds, const char **text, int count, int *active)
     //--------------------------------------------------------------------
     for (int i = 0; i < count; i++)
     {
-        tabBounds.x = bounds.x + (RAYGUI_TABBAR_ITEM_WIDTH + 4)*i - offsetX;
+        //tabBounds.x = bounds.x + (RAYGUI_TABBAR_ITEM_WIDTH + 4)*i - offsetX;
+		tabBounds.x = bounds.x + (tabBounds.width + RAYGUI_TABBAR_ITEM_SPACING)*i - offsetX;
 
         if (tabBounds.x < GetScreenWidth())
         {
